@@ -1,0 +1,8 @@
+syntax: glob
+.gradle/*
+.DS_Store
+.idea/*
+*.iml
+android-gravatar/build/*
+local.properties
+gradle/*
