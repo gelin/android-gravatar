@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Gravatar for Android</string>
-    <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="enter_email">Enter email here</string>
+    <string name="find_gravatar">Find Gravatar</string>
 
 </resources>
