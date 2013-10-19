@@ -2,8 +2,14 @@ package com.example.android.gravatar;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.View;
+import android.widget.EditText;
+
+import jgravatar.Gravatar;
+import jgravatar.GravatarDefaultImage;
+import jgravatar.GravatarRating;
 
 public class GetGravatarActivity extends Activity {
 
@@ -14,6 +20,13 @@ public class GetGravatarActivity extends Activity {
     }
 
     public void findGravatar(View view) {
+        EditText edit = (EditText) findViewById(R.id.email);
+        String email = edit.getText().toString();
+        Gravatar gravatar = new Gravatar();
+        gravatar.setSize(getResources().getDimensionPixelSize(R.dimen.gravatar_size));
+        gravatar.setRating(GravatarRating.GENERAL_AUDIENCES);
+        gravatar.setDefaultImage(GravatarDefaultImage.IDENTICON);
+        byte[] jpg = gravatar.download(email);
     }
 
 }
