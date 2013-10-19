@@ -23,4 +23,17 @@
         android:text="@string/find_gravatar"
         android:onClick="findGravatar" />
 
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_launcher"
+        android:visibility="gone" />
+
 </LinearLayout>

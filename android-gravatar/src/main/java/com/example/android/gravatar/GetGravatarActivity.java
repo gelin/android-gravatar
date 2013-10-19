@@ -1,5 +1,8 @@
 package com.example.android.gravatar;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
@@ -7,6 +10,7 @@ import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import jgravatar.Gravatar;
 import jgravatar.GravatarDefaultImage;
@@ -26,15 +30,36 @@ public class GetGravatarActivity extends Activity {
         new DownloadGravatarTask().execute(email);
     }
 
-    class DownloadGravatarTask extends AsyncTask<String, Void, byte[]> {
+    private void showProgress() {
+        View progress = findViewById(R.id.progress);
+        View image = findViewById(R.id.image);
+        image.setVisibility(View.GONE);
+        progress.setVisibility(View.VISIBLE);
+    }
+
+    private void showImage(Bitmap bitmap) {
+        View progress = findViewById(R.id.progress);
+        ImageView image = (ImageView) findViewById(R.id.image);
+        image.setImageBitmap(bitmap);
+        progress.setVisibility(View.GONE);
+        image.setVisibility(View.VISIBLE);
+    }
+
+    class DownloadGravatarTask extends AsyncTask<String, Void, Bitmap> {
 
         @Override
-        protected byte[] doInBackground(String... strings) {
+        protected Bitmap doInBackground(String... strings) {
             Gravatar gravatar = new Gravatar();
             gravatar.setSize(getResources().getDimensionPixelSize(R.dimen.gravatar_size));
             gravatar.setRating(GravatarRating.GENERAL_AUDIENCES);
             gravatar.setDefaultImage(GravatarDefaultImage.IDENTICON);
-            return gravatar.download(strings[0]);
+            byte[] jpg = gravatar.download(strings[0]);
+            return BitmapFactory.decodeByteArray(jpg, 0, jpg.length);
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            showImage(bitmap);
         }
 
     }
