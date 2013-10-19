@@ -1,5 +1,6 @@
 package com.example.android.gravatar;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.util.DisplayMetrics;
@@ -22,11 +23,20 @@ public class GetGravatarActivity extends Activity {
     public void findGravatar(View view) {
         EditText edit = (EditText) findViewById(R.id.email);
         String email = edit.getText().toString();
-        Gravatar gravatar = new Gravatar();
-        gravatar.setSize(getResources().getDimensionPixelSize(R.dimen.gravatar_size));
-        gravatar.setRating(GravatarRating.GENERAL_AUDIENCES);
-        gravatar.setDefaultImage(GravatarDefaultImage.IDENTICON);
-        byte[] jpg = gravatar.download(email);
+        new DownloadGravatarTask().execute(email);
+    }
+
+    class DownloadGravatarTask extends AsyncTask<String, Void, byte[]> {
+
+        @Override
+        protected byte[] doInBackground(String... strings) {
+            Gravatar gravatar = new Gravatar();
+            gravatar.setSize(getResources().getDimensionPixelSize(R.dimen.gravatar_size));
+            gravatar.setRating(GravatarRating.GENERAL_AUDIENCES);
+            gravatar.setDefaultImage(GravatarDefaultImage.IDENTICON);
+            return gravatar.download(strings[0]);
+        }
+
     }
 
 }
