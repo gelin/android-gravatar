@@ -32,8 +32,6 @@ public class GetGravatarActivity extends Activity {
 
     private void showProgress() {
         View progress = findViewById(R.id.progress);
-        View image = findViewById(R.id.image);
-        image.setVisibility(View.GONE);
         progress.setVisibility(View.VISIBLE);
     }
 
@@ -41,11 +39,17 @@ public class GetGravatarActivity extends Activity {
         View progress = findViewById(R.id.progress);
         ImageView image = (ImageView) findViewById(R.id.image);
         image.setImageBitmap(bitmap);
+        //image.getDrawable().setFilterBitmap(false);
         progress.setVisibility(View.GONE);
         image.setVisibility(View.VISIBLE);
     }
 
     class DownloadGravatarTask extends AsyncTask<String, Void, Bitmap> {
+
+        @Override
+        protected void onPreExecute() {
+            showProgress();
+        }
 
         @Override
         protected Bitmap doInBackground(String... strings) {
