@@ -69,10 +69,18 @@ public class MainActivity extends Activity implements ActionBar.OnNavigationList
     public boolean onNavigationItemSelected(int position, long id) {
         // When the given dropdown item is selected, show its contents in the
         // container view.
-        Fragment fragment = new DummySectionFragment();
-        Bundle args = new Bundle();
-        args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
-        fragment.setArguments(args);
+        Fragment fragment;
+        switch (position) {
+            case 0:
+                fragment = new GetGravatarFragment();
+                break;
+            default:
+                fragment = new DummySectionFragment();
+                Bundle args = new Bundle();
+                args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
+                fragment.setArguments(args);
+                break;
+        }
         getFragmentManager().beginTransaction()
                 .replace(R.id.container, fragment)
                 .commit();
