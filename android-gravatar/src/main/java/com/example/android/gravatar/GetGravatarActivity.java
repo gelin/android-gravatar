@@ -7,10 +7,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import jgravatar.Gravatar;
 import jgravatar.GravatarDefaultImage;
@@ -44,6 +46,14 @@ public class GetGravatarActivity extends Activity {
         image.setVisibility(View.VISIBLE);
     }
 
+    private void showError() {
+        View progress = findViewById(R.id.progress);
+        ImageView image = (ImageView) findViewById(R.id.image);
+        progress.setVisibility(View.GONE);
+        image.setVisibility(View.GONE);
+        Toast.makeText(this, R.string.download_failure, Toast.LENGTH_LONG).show();
+    }
+
     class DownloadGravatarTask extends AsyncTask<String, Void, Bitmap> {
 
         @Override
@@ -53,17 +63,26 @@ public class GetGravatarActivity extends Activity {
 
         @Override
         protected Bitmap doInBackground(String... strings) {
-            Gravatar gravatar = new Gravatar();
-            gravatar.setSize(getResources().getDimensionPixelSize(R.dimen.gravatar_size));
-            gravatar.setRating(GravatarRating.GENERAL_AUDIENCES);
-            gravatar.setDefaultImage(GravatarDefaultImage.IDENTICON);
-            byte[] jpg = gravatar.download(strings[0]);
-            return BitmapFactory.decodeByteArray(jpg, 0, jpg.length);
+            try {
+                Gravatar gravatar = new Gravatar();
+                gravatar.setSize(getResources().getDimensionPixelSize(R.dimen.gravatar_size));
+                gravatar.setRating(GravatarRating.GENERAL_AUDIENCES);
+                gravatar.setDefaultImage(GravatarDefaultImage.IDENTICON);
+                byte[] jpg = gravatar.download(strings[0]);
+                return BitmapFactory.decodeByteArray(jpg, 0, jpg.length);
+            } catch (Exception e) {
+                Log.w(Tag.TAG, "failed to load Gravatar", e);
+                return null;
+            }
         }
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            showImage(bitmap);
+            if (bitmap == null) {
+                showError();
+            } else {
+                showImage(bitmap);
+            }
         }
 
     }

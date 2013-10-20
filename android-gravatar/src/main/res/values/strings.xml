@@ -4,5 +4,6 @@
     <string name="app_name">Gravatar for Android</string>
     <string name="enter_email">Enter email here</string>
     <string name="find_gravatar">Find Gravatar</string>
+    <string name="download_failure">Failed to download Gravatar</string>
 
 </resources>
