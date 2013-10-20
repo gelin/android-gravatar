@@ -8,6 +8,6 @@
 
     <string name="action_settings">Settings</string>
     <string name="title_section1">Find Gravatar</string>
-    <string name="title_section2">View Addressbook</string>
+    <string name="title_section2">View Contacts</string>
 
 </resources>
