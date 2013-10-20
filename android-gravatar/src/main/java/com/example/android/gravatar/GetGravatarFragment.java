@@ -31,6 +31,7 @@ public class GetGravatarFragment extends Fragment {
         this.email = (EditText) view.findViewById(R.id.email);
         this.progress = (ProgressBar) view.findViewById(R.id.progress);
         this.image = (ImageView) view.findViewById(R.id.image);
+
         Button button = (Button) view.findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -38,6 +39,7 @@ public class GetGravatarFragment extends Fragment {
                 findGravatar();
             }
         });
+
         return view;
     }
 

@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity implements ActionBar.OnNavigationListener {
 
+    GetGravatarFragment getGravatarFragment;
+
     /**
      * The serialization (saved instance state) Bundle key representing the
      * current dropdown position.
@@ -30,6 +32,8 @@ public class MainActivity extends Activity implements ActionBar.OnNavigationList
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+
+        this.getGravatarFragment = new GetGravatarFragment();
 
         // Set up the dropdown list navigation in the action bar.
         actionBar.setListNavigationCallbacks(
@@ -72,7 +76,7 @@ public class MainActivity extends Activity implements ActionBar.OnNavigationList
         Fragment fragment;
         switch (position) {
             case 0:
-                fragment = new GetGravatarFragment();
+                fragment = this.getGravatarFragment;
                 break;
             default:
                 fragment = new DummySectionFragment();
