@@ -22,16 +22,22 @@ public class ViewContactsFragment extends ListFragment {
                 new String[] {  ContactsContract.Data._ID,
                                 ContactsContract.Contacts.DISPLAY_NAME,
                                 ContactsContract.CommonDataKinds.Email.ADDRESS },
-                ContactsContract.CommonDataKinds.Email.ADDRESS + " is not null",
+                ContactsContract.CommonDataKinds.Email.ADDRESS + " is not null" +
+                    " AND " + ContactsContract.Data.MIMETYPE + " = '" +
+                        ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE + "'",
                 null,
                 ContactsContract.Contacts.DISPLAY_NAME);
 
         ListAdapter adapter = new SimpleCursorAdapter(
                 getActivity(),
-                android.R.layout.simple_list_item_1,
+                R.layout.person_list_item,
                 cursor,
-                new String[] { ContactsContract.Contacts.DISPLAY_NAME },
-                new int[] { android.R.id.text1 },
+                new String[] {
+                        ContactsContract.Contacts.DISPLAY_NAME,
+                        ContactsContract.CommonDataKinds.Email.ADDRESS },
+                new int[] {
+                        R.id.name,
+                        R.id.email },
                 0);
 
         return adapter;
