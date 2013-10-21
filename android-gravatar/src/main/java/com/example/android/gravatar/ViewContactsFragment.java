@@ -7,10 +7,14 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.widget.CursorAdapter;
 import android.widget.ListAdapter;
 import android.widget.SimpleCursorAdapter;
+
+import static android.provider.ContactsContract.Data;
+import static android.provider.ContactsContract.Contacts;
+import static android.provider.ContactsContract.CommonDataKinds.Email;
+import static android.provider.ContactsContract.CommonDataKinds.Photo;
 
 public class ViewContactsFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -24,8 +28,8 @@ public class ViewContactsFragment extends ListFragment
                 R.layout.person_list_item,
                 null,
                 new String[] {
-                        ContactsContract.Contacts.DISPLAY_NAME,
-                        ContactsContract.CommonDataKinds.Email.ADDRESS },
+                        Contacts.DISPLAY_NAME,
+                        Email.ADDRESS },
                 new int[] {
                         R.id.name,
                         R.id.email },
@@ -39,15 +43,16 @@ public class ViewContactsFragment extends ListFragment
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         return new CursorLoader(
                 getActivity(),
-                ContactsContract.Data.CONTENT_URI,
-                new String[] {  ContactsContract.Data._ID,
-                        ContactsContract.Contacts.DISPLAY_NAME,
-                        ContactsContract.CommonDataKinds.Email.ADDRESS },
-                ContactsContract.CommonDataKinds.Email.ADDRESS + " is not null" +
-                        " AND " + ContactsContract.Data.MIMETYPE + " = '" +
-                        ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE + "'",
+                Data.CONTENT_URI,
+                new String[] {
+                        Data._ID,
+                        Data.CONTACT_ID,
+                        Contacts.DISPLAY_NAME,
+                        Email.ADDRESS },
+                Email.ADDRESS + " is not null" +
+                        " AND " + Data.MIMETYPE + " = '" + Email.CONTENT_ITEM_TYPE + "'",
                 null,
-                ContactsContract.Contacts.DISPLAY_NAME);
+                Contacts.DISPLAY_NAME);
     }
 
     @Override
