@@ -12,11 +12,18 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.WeakHashMap;
@@ -38,6 +45,10 @@ public class ViewContactsFragment extends ListFragment {
         super.onActivityCreated(savedInstanceState);
 
         this.cache = new SimpleGravatarCache();
+
+        ListView list = getListView();
+        list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        list.setMultiChoiceModeListener(new ChoiceListener());
 
         SimpleCursorAdapter adapter = new SimpleCursorAdapter(
                 getActivity(),
@@ -63,7 +74,7 @@ public class ViewContactsFragment extends ListFragment {
         manager.initLoader(ContactsLoaderCallbacks.ID, null, new ContactsLoaderCallbacks());
     }
 
-    class ContactsLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
+    private class ContactsLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
 
         public static final int ID = 0;
 
@@ -99,7 +110,7 @@ public class ViewContactsFragment extends ListFragment {
 
     }
 
-    class ContactViewBinder implements SimpleCursorAdapter.ViewBinder {
+    private class ContactViewBinder implements SimpleCursorAdapter.ViewBinder {
 
         WeakHashMap<View, AsyncTask> imageLoadTasks = new WeakHashMap<View, AsyncTask>();
 
@@ -142,7 +153,7 @@ public class ViewContactsFragment extends ListFragment {
 
     }
 
-    abstract class ImageLoadTask<Params> extends AsyncTask<Params, Void, Bitmap> {
+    private abstract class ImageLoadTask<Params> extends AsyncTask<Params, Void, Bitmap> {
 
         ImageView view;
 
@@ -163,7 +174,7 @@ public class ViewContactsFragment extends ListFragment {
 
     }
 
-    class PhotoLoadTask extends ImageLoadTask<Integer> {
+    private class PhotoLoadTask extends ImageLoadTask<Integer> {
 
         PhotoLoadTask(ImageView view) {
             super(view);
@@ -199,7 +210,7 @@ public class ViewContactsFragment extends ListFragment {
 
     }
 
-    class GravatarLoadTask extends ImageLoadTask<String> {
+    private class GravatarLoadTask extends ImageLoadTask<String> {
 
         GravatarLoadTask(ImageView view) {
             super(view);
@@ -227,6 +238,46 @@ public class ViewContactsFragment extends ListFragment {
             }
         }
 
+    }
+
+    private class ChoiceListener implements AbsListView.MultiChoiceModeListener {
+
+        @Override
+        public void onItemCheckedStateChanged(ActionMode actionMode, int position, long id, boolean checked) {
+            actionMode.setTitle(String.valueOf(getListView().getCheckedItemCount()));
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            MenuInflater inflater = actionMode.getMenuInflater();
+            inflater.inflate(R.menu.context, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+            return false;   //nothing to do
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+            switch (menuItem.getItemId()) {
+                case R.id.action_save:
+                    saveSelectedItems();
+                    actionMode.finish();
+                    return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode actionMode) {
+            //nothing to do
+        }
+    }
+
+    private void saveSelectedItems() {
+        Toast.makeText(getActivity(), "SAVED", Toast.LENGTH_LONG).show();
     }
 
 }
