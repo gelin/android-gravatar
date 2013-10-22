@@ -18,6 +18,9 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.SimpleCursorAdapter;
 
+import java.util.HashMap;
+import java.util.WeakHashMap;
+
 import jgravatar.Gravatar;
 import jgravatar.GravatarDefaultImage;
 import jgravatar.GravatarRating;
@@ -98,31 +101,72 @@ public class ViewContactsFragment extends ListFragment {
 
     class ContactViewBinder implements SimpleCursorAdapter.ViewBinder {
 
+        WeakHashMap<View, AsyncTask> imageLoadTasks = new WeakHashMap<View, AsyncTask>();
+
         @Override
         public boolean setViewValue(View view, Cursor cursor, int column) {
             switch (view.getId()) {
                 case R.id.photo:
-                    view.setVisibility(View.INVISIBLE);
                     int contactId = cursor.getInt(column);
-                    new PhotoLoadTask((ImageView) view).execute(contactId);
+                    startPhotoTask(view, contactId);
                     return true;
                 case R.id.gravatar:
-                    view.setVisibility(View.INVISIBLE);
                     String email = cursor.getString(column);
-                    new GravatarLoadTask((ImageView) view).execute(email);
+                    startGravatarTask(view, email);
                     return true;
             }
             return false;
         }
 
+        void startPhotoTask(View view, int contactId) {
+            cancelTask(view);
+            PhotoLoadTask task = new PhotoLoadTask((ImageView) view);
+            this.imageLoadTasks.put(view, task);
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, contactId);
+        }
+
+        void startGravatarTask(View view, String email) {
+            cancelTask(view);
+            GravatarLoadTask task = new GravatarLoadTask((ImageView) view);
+            this.imageLoadTasks.put(view, task);
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, email);
+        }
+
+        void cancelTask(View view) {
+            AsyncTask task = this.imageLoadTasks.get(view);
+            if (task == null) {
+                return;
+            }
+            task.cancel(true);
+        }
+
     }
 
-    class PhotoLoadTask extends AsyncTask<Integer, Void, Bitmap> {
+    abstract class ImageLoadTask<Params> extends AsyncTask<Params, Void, Bitmap> {
 
         ImageView view;
 
-        PhotoLoadTask(ImageView view) {
+        protected ImageLoadTask(ImageView view) {
             this.view = view;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            this.view.setVisibility(View.INVISIBLE);
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            this.view.setImageBitmap(bitmap);
+            this.view.setVisibility(View.VISIBLE);
+        }
+
+    }
+
+    class PhotoLoadTask extends ImageLoadTask<Integer> {
+
+        PhotoLoadTask(ImageView view) {
+            super(view);
         }
 
         @Override
@@ -153,20 +197,12 @@ public class ViewContactsFragment extends ListFragment {
             }
         }
 
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            this.view.setImageBitmap(bitmap);
-            this.view.setVisibility(View.VISIBLE);
-        }
-
     }
 
-    class GravatarLoadTask extends AsyncTask<String, Void, Bitmap> {
-
-        ImageView view;
+    class GravatarLoadTask extends ImageLoadTask<String> {
 
         GravatarLoadTask(ImageView view) {
-            this.view = view;
+            super(view);
         }
 
         @Override
@@ -189,12 +225,6 @@ public class ViewContactsFragment extends ListFragment {
                 Log.w(Tag.TAG, "failed to load Gravatar", e);
                 return null;
             }
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            this.view.setImageBitmap(bitmap);
-            this.view.setVisibility(View.VISIBLE);
         }
 
     }
