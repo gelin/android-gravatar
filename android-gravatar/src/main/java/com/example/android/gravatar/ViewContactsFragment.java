@@ -102,10 +102,12 @@ public class ViewContactsFragment extends ListFragment {
         public boolean setViewValue(View view, Cursor cursor, int column) {
             switch (view.getId()) {
                 case R.id.photo:
+                    view.setVisibility(View.INVISIBLE);
                     int contactId = cursor.getInt(column);
                     new PhotoLoadTask((ImageView) view).execute(contactId);
                     return true;
                 case R.id.gravatar:
+                    view.setVisibility(View.INVISIBLE);
                     String email = cursor.getString(column);
                     new GravatarLoadTask((ImageView) view).execute(email);
                     return true;
@@ -154,6 +156,7 @@ public class ViewContactsFragment extends ListFragment {
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             this.view.setImageBitmap(bitmap);
+            this.view.setVisibility(View.VISIBLE);
         }
 
     }
@@ -191,6 +194,7 @@ public class ViewContactsFragment extends ListFragment {
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             this.view.setImageBitmap(bitmap);
+            this.view.setVisibility(View.VISIBLE);
         }
 
     }
