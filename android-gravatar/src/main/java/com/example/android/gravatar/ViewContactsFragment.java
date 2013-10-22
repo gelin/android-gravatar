@@ -40,11 +40,13 @@ public class ViewContactsFragment extends ListFragment {
                         Contacts.DISPLAY_NAME,
                         Email.ADDRESS,
                         Data.CONTACT_ID,
+                        Email.ADDRESS,
                 },
                 new int[] {
                         R.id.name,
                         R.id.email,
                         R.id.photo,
+                        R.id.gravatar,
                 },
                 0);
         adapter.setViewBinder(new ContactViewBinder());
@@ -94,11 +96,14 @@ public class ViewContactsFragment extends ListFragment {
 
         @Override
         public boolean setViewValue(View view, Cursor cursor, int column) {
-            int contactId;
-            switch (column) {
-                case 1:
-                    contactId = cursor.getInt(column);
+            switch (view.getId()) {
+                case R.id.photo:
+                    int contactId = cursor.getInt(column);
                     new PhotoLoadTask((ImageView) view).execute(contactId);
+                    return true;
+                case R.id.gravatar:
+                    String email = cursor.getString(column);
+                    new GravatarLoadTask((ImageView) view).execute(email);
                     return true;
             }
             return false;
@@ -161,7 +166,7 @@ public class ViewContactsFragment extends ListFragment {
         protected Bitmap doInBackground(String... params) {
             try {
                 Gravatar gravatar = new Gravatar();
-                gravatar.setSize(getResources().getDimensionPixelSize(R.dimen.gravatar_size));
+                gravatar.setSize(getResources().getDimensionPixelSize(R.dimen.gravatar_thumbnail_size));
                 gravatar.setRating(GravatarRating.GENERAL_AUDIENCES);
                 gravatar.setDefaultImage(GravatarDefaultImage.IDENTICON);
                 byte[] jpg = gravatar.download(params[0]);
