@@ -2,7 +2,10 @@ package com.example.android.gravatar;
 
 import android.app.ListFragment;
 import android.app.LoaderManager;
+import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
@@ -11,7 +14,10 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
+import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,6 +31,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.WeakHashMap;
 
@@ -35,6 +42,8 @@ import jgravatar.GravatarRating;
 import static android.provider.ContactsContract.Data;
 import static android.provider.ContactsContract.Contacts;
 import static android.provider.ContactsContract.CommonDataKinds.Email;
+import static android.provider.ContactsContract.CommonDataKinds.Photo;
+
 
 public class ViewContactsFragment extends ListFragment {
 
@@ -277,7 +286,59 @@ public class ViewContactsFragment extends ListFragment {
     }
 
     private void saveSelectedItems() {
-        Toast.makeText(getActivity(), "SAVED", Toast.LENGTH_LONG).show();
+        SparseBooleanArray pos = getListView().getCheckedItemPositions().clone();
+        new SaveGravatarTask().execute(pos);
+    }
+
+    private class SaveGravatarTask extends AsyncTask<SparseBooleanArray, Void, Integer> {
+
+        @Override
+        protected Integer doInBackground(SparseBooleanArray... params) {
+            try {
+                SparseBooleanArray pos = params[0];
+
+                ListAdapter adapter = getListAdapter();
+
+                Gravatar gravatar = new Gravatar();
+                gravatar.setSize(getResources().getDimensionPixelSize(R.dimen.gravatar_save_size));
+                gravatar.setRating(GravatarRating.GENERAL_AUDIENCES);
+                gravatar.setDefaultImage(GravatarDefaultImage.IDENTICON);
+
+                ContentResolver resolver = getActivity().getContentResolver();
+
+                ArrayList<ContentValues> values = new ArrayList<ContentValues>();
+
+                for (int i = 0; i < adapter.getCount(); i++) {
+                    //Log.d(Tag.TAG, i + " " + pos.get(i));
+                    if (!pos.get(i)) {
+                        continue;
+                    }
+                    Cursor cursor = (Cursor)adapter.getItem(i);
+                    long id = cursor.getLong(0);
+                    String email = cursor.getString(3);
+                    Log.d(Tag.TAG, "saving gravatar to " + id + " " + email);
+                    byte[] jpg = gravatar.download(email);
+                    ContentValues row = new ContentValues();
+                    row.put(Data.RAW_CONTACT_ID, id);
+                    row.put(Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE);
+                    row.put(Photo.PHOTO, jpg);
+                    values.add(row);
+                }
+                return resolver.bulkInsert(
+                        Data.CONTENT_URI,
+                        values.toArray(new ContentValues[] {}));
+            } catch (Exception e) {
+                Log.w(Tag.TAG, "failed to insert", e);
+                return 0;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Integer inserted) {
+            Toast.makeText(getActivity(), getString(R.string.saved, inserted),
+                    Toast.LENGTH_LONG).show();
+        }
+
     }
 
 }

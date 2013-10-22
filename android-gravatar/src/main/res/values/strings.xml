@@ -9,6 +9,8 @@
     <string name="action_settings">Settings</string>
     <string name="title_section1">Find Gravatar</string>
     <string name="title_section2">View Contacts</string>
+
     <string name="action_save_to_contacts">Save Gravatars to Contacts</string>
+    <string name="saved">Saved %d Gravatars</string>
 
 </resources>
