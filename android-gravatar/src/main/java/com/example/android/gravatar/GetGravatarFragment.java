@@ -73,13 +73,13 @@ public class GetGravatarFragment extends Fragment {
         }
 
         @Override
-        protected Bitmap doInBackground(String... strings) {
+        protected Bitmap doInBackground(String... params) {
             try {
                 Gravatar gravatar = new Gravatar();
                 gravatar.setSize(getResources().getDimensionPixelSize(R.dimen.gravatar_size));
                 gravatar.setRating(GravatarRating.GENERAL_AUDIENCES);
                 gravatar.setDefaultImage(GravatarDefaultImage.IDENTICON);
-                byte[] jpg = gravatar.download(strings[0]);
+                byte[] jpg = gravatar.download(params[0]);
                 return BitmapFactory.decodeByteArray(jpg, 0, jpg.length);
             } catch (Exception e) {
                 Log.w(Tag.TAG, "failed to load Gravatar", e);
