@@ -28,9 +28,13 @@ import static android.provider.ContactsContract.CommonDataKinds.Email;
 
 public class ViewContactsFragment extends ListFragment {
 
+    SimpleGravatarCache cache;
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        this.cache = new SimpleGravatarCache();
 
         SimpleCursorAdapter adapter = new SimpleCursorAdapter(
                 getActivity(),
@@ -165,12 +169,19 @@ public class ViewContactsFragment extends ListFragment {
         @Override
         protected Bitmap doInBackground(String... params) {
             try {
+                String email = params[0];
+                Bitmap bitmap = ViewContactsFragment.this.cache.getGravatar(email);
+                if (bitmap != null) {
+                    return bitmap;
+                }
                 Gravatar gravatar = new Gravatar();
                 gravatar.setSize(getResources().getDimensionPixelSize(R.dimen.gravatar_thumbnail_size));
                 gravatar.setRating(GravatarRating.GENERAL_AUDIENCES);
                 gravatar.setDefaultImage(GravatarDefaultImage.IDENTICON);
-                byte[] jpg = gravatar.download(params[0]);
-                return BitmapFactory.decodeByteArray(jpg, 0, jpg.length);
+                byte[] jpg = gravatar.download(email);
+                bitmap = BitmapFactory.decodeByteArray(jpg, 0, jpg.length);
+                ViewContactsFragment.this.cache.putGravatar(email, bitmap);
+                return bitmap;
             } catch (Exception e) {
                 Log.w(Tag.TAG, "failed to load Gravatar", e);
                 return null;
