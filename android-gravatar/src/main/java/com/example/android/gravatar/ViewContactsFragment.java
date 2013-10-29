@@ -2,11 +2,11 @@ package com.example.android.gravatar;
 
 import android.app.ListFragment;
 import android.app.LoaderManager;
-import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -14,9 +14,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
-import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -32,20 +30,27 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.WeakHashMap;
 
 import jgravatar.Gravatar;
 import jgravatar.GravatarDefaultImage;
 import jgravatar.GravatarRating;
 
-import static android.provider.ContactsContract.Data;
-import static android.provider.ContactsContract.Contacts;
 import static android.provider.ContactsContract.CommonDataKinds.Email;
 import static android.provider.ContactsContract.CommonDataKinds.Photo;
+import static android.provider.ContactsContract.Contacts;
+import static android.provider.ContactsContract.Data;
 
 
 public class ViewContactsFragment extends ListFragment {
+
+    private static final String[] PROJECTION = new String[] {
+            Data._ID,
+            Data.CONTACT_ID,
+            Contacts.DISPLAY_NAME,
+            Email.ADDRESS,
+    };
+    private static final int CONTACT_ID_COL = 1;
 
     SimpleGravatarCache cache;
 
@@ -83,6 +88,16 @@ public class ViewContactsFragment extends ListFragment {
         manager.initLoader(ContactsLoaderCallbacks.ID, null, new ContactsLoaderCallbacks());
     }
 
+	@Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        Cursor cursor = (Cursor) getListAdapter().getItem(position);
+        long contactId = cursor.getLong(CONTACT_ID_COL);
+        Uri uri = Uri.withAppendedPath(Contacts.CONTENT_URI, String.valueOf(contactId));
+        Log.d(Tag.TAG, "opening: " + uri);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
+    }
+
     private class ContactsLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
 
         public static final int ID = 0;
@@ -92,12 +107,7 @@ public class ViewContactsFragment extends ListFragment {
             return new CursorLoader(
                     getActivity(),
                     Data.CONTENT_URI,
-                    new String[] {
-                            Data._ID,
-                            Data.CONTACT_ID,
-                            Contacts.DISPLAY_NAME,
-                            Email.ADDRESS,
-                    },
+                    PROJECTION,
                     Email.ADDRESS + " is not null" +
                             " AND " + Data.MIMETYPE + " = '" + Email.CONTENT_ITEM_TYPE + "'",
                     null,
