@@ -47,12 +47,15 @@ public class ViewContactsFragment extends ListFragment {
     private static final String[] PROJECTION = new String[] {
             Data._ID,
             Data.CONTACT_ID,
+            Data.RAW_CONTACT_ID,
             Contacts.DISPLAY_NAME,
             Email.ADDRESS,
     };
     private static final int CONTACT_ID_COL = 1;
+    private static final int RAW_CONTACT_ID_COL = 2;
+    private static final int EMAIL_COL = 4;
 
-    SimpleGravatarCache cache;
+    private SimpleGravatarCache cache;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -324,8 +327,8 @@ public class ViewContactsFragment extends ListFragment {
                         continue;
                     }
                     Cursor cursor = (Cursor)adapter.getItem(i);
-                    long id = cursor.getLong(0);
-                    String email = cursor.getString(3);
+                    long id = cursor.getLong(RAW_CONTACT_ID_COL);
+                    String email = cursor.getString(EMAIL_COL);
                     Log.d(Tag.TAG, "saving gravatar to " + id + " " + email);
                     byte[] jpg = gravatar.download(email);
                     ContentValues row = new ContentValues();
