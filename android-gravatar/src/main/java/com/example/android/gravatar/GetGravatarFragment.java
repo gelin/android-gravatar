@@ -1,57 +1,68 @@
 package com.example.android.gravatar;
 
+import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Activity;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Menu;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import jgravatar.Gravatar;
 import jgravatar.GravatarDefaultImage;
 import jgravatar.GravatarRating;
 
-public class GetGravatarActivity extends Activity {
+public class GetGravatarFragment extends Fragment {
+
+    EditText email;
+    ProgressBar progress;
+    ImageView image;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.get_gravatar_activity);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.get_gravatar_fragment, container, false);
+        this.email = (EditText) view.findViewById(R.id.email);
+        this.progress = (ProgressBar) view.findViewById(R.id.progress);
+        this.image = (ImageView) view.findViewById(R.id.image);
+
+        Button button = (Button) view.findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                findGravatar();
+            }
+        });
+
+        return view;
     }
 
-    public void findGravatar(View view) {
-        EditText edit = (EditText) findViewById(R.id.email);
-        String email = edit.getText().toString();
+    public void findGravatar() {
+        String email = this.email.getText().toString();
         new DownloadGravatarTask().execute(email);
     }
 
     private void showProgress() {
-        View progress = findViewById(R.id.progress);
-        progress.setVisibility(View.VISIBLE);
+        this.progress.setVisibility(View.VISIBLE);
     }
 
     private void showImage(Bitmap bitmap) {
-        View progress = findViewById(R.id.progress);
-        ImageView image = (ImageView) findViewById(R.id.image);
-        image.setImageBitmap(bitmap);
+        this.image.setImageBitmap(bitmap);
         //image.getDrawable().setFilterBitmap(false);
-        progress.setVisibility(View.GONE);
-        image.setVisibility(View.VISIBLE);
+        this.progress.setVisibility(View.GONE);
+        this.image.setVisibility(View.VISIBLE);
     }
 
     private void showError() {
-        View progress = findViewById(R.id.progress);
-        ImageView image = (ImageView) findViewById(R.id.image);
-        progress.setVisibility(View.GONE);
-        image.setVisibility(View.GONE);
-        Toast.makeText(this, R.string.download_failure, Toast.LENGTH_LONG).show();
+        this.progress.setVisibility(View.GONE);
+        this.image.setVisibility(View.GONE);
+        Toast.makeText(getActivity(), R.string.download_failure, Toast.LENGTH_LONG).show();
     }
 
     class DownloadGravatarTask extends AsyncTask<String, Void, Bitmap> {
@@ -62,13 +73,13 @@ public class GetGravatarActivity extends Activity {
         }
 
         @Override
-        protected Bitmap doInBackground(String... strings) {
+        protected Bitmap doInBackground(String... params) {
             try {
                 Gravatar gravatar = new Gravatar();
                 gravatar.setSize(getResources().getDimensionPixelSize(R.dimen.gravatar_size));
                 gravatar.setRating(GravatarRating.GENERAL_AUDIENCES);
                 gravatar.setDefaultImage(GravatarDefaultImage.IDENTICON);
-                byte[] jpg = gravatar.download(strings[0]);
+                byte[] jpg = gravatar.download(params[0]);
                 return BitmapFactory.decodeByteArray(jpg, 0, jpg.length);
             } catch (Exception e) {
                 Log.w(Tag.TAG, "failed to load Gravatar", e);

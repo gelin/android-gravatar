@@ -4,4 +4,7 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
 
     <dimen name="gravatar_size">250dp</dimen>
+    <dimen name="gravatar_thumbnail_size">64dp</dimen>
+    <dimen name="gravatar_save_size">96dp</dimen>
+
 </resources>
